@@ -6,7 +6,7 @@
 
 ## 安装
 ```shell
-
+composer require kingbes/attribute
 ```
 
 ## 使用，建议结合php8的命名参数使用
@@ -34,7 +34,7 @@ class IndexController
 
 ```
 其中：return json(Annotation::data()); 得到结果
-```json
+```jsonc
 [
     {
         "title": "首页的", // 默认：无Controller后缀的短class名
