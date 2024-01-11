@@ -64,3 +64,4 @@ class IndexController
     }
 ]
 ```
+class中仅title、add、auth有效
