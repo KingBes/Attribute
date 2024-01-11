@@ -1,0 +1,14 @@
+{
+  "name": "kingbes/attribute",
+  "type": "library",
+  "license": "MIT",
+  "description": "Webman plugin kingbes/attribute",
+  "require": {
+    "php": ">8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Kingbes\\Attribute\\": "src"
+    }
+  }
+}
