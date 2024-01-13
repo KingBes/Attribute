@@ -85,7 +85,7 @@ class Annotation
         }
         if ($use == "app") {
             return Tool::controller(app_path());
-        } elseif ($use == "plugin" && file_exists(Tool::plugin_path())) {
+        } elseif ($use == "plugin") {
             return Tool::controller(Tool::plugin_path());
         } else {
             return array_merge(Tool::controller(app_path()), Tool::controller(Tool::plugin_path()));
