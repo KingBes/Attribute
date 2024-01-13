@@ -214,7 +214,7 @@ class Tool
         $res = str_replace(".", "/", $res);
         $arr[] = $res;
         $default = config('plugin.kingbes.attribute.attribute.default', 'index');
-        if (strpos($res, "/" . $default) === 0) {
+        if ("/" . $default . "/index/index" == $res) {
             $arr[] = "/";
         }
         return $arr;

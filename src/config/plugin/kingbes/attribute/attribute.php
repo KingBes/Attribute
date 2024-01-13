@@ -2,9 +2,9 @@
 
 return [
     // 应用映射
-    "bing" => [
-        // "app.admin" 是admin应用 ; "plugin.foo" 是foo应用插件 ; 单应用 "app."
-        "index" => "app."
+    "bind" => [
+        // "app.admin" 是admin应用 ; "plugin.foo" 是foo应用插件 ; 单应用 "app"
+        "index" => "app"
     ],
     // 默认应用 应用映射的key
     "default" => "index",
