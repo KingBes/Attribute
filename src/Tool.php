@@ -23,6 +23,12 @@ class Tool
         $iterator = new \RecursiveIteratorIterator($dirIterator);
 
         $arr = [];
+
+        // 文件或文件夹为空就返回
+        if (!file_exists($path)) {
+            return $arr;
+        }
+
         $i = 0;
         foreach ($iterator as $k => $v) {
             // 忽略非PHP文件和目录
