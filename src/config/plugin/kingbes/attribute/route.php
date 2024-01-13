@@ -35,3 +35,7 @@ foreach ($Annotation as $k => $v) {
         }
     }
 }
+
+
+// 禁用默认路由
+Route::disableDefaultRoute();
