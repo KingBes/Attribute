@@ -18,16 +18,16 @@ class Tool
         $controllerSuffix = config('app.controller_suffix', '');
         $suffixLength = strlen($controllerSuffix);
 
-        // 遍历控制器目录
-        $dirIterator = new \RecursiveDirectoryIterator($path);
-        $iterator = new \RecursiveIteratorIterator($dirIterator);
-
         $arr = [];
 
         // 文件或文件夹为空就返回
         if (!file_exists($path)) {
             return $arr;
         }
+
+        // 遍历控制器目录
+        $dirIterator = new \RecursiveDirectoryIterator($path);
+        $iterator = new \RecursiveIteratorIterator($dirIterator);
 
         $i = 0;
         foreach ($iterator as $k => $v) {
