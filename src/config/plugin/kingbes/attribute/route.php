@@ -14,28 +14,31 @@
  */
 
 use Webman\Route;
-use Kingbes\Attribute\Annotation;
+use Kingbes\Attribute\Data;
 
-// 获取已设置路由的URI列表
-$routes = Route::getRoutes();
-$ignoreList = array_map(fn ($tmpRoute) => $tmpRoute->getPath(), $routes);
-
-$Annotation = Annotation::data();
-
-foreach ($Annotation as $k => $v) {
-    foreach ($v["methods"] as $method) {
-        foreach ($method["path"] as $path) {
-            if (!in_array($path, $ignoreList)) {
-                Route::add($method["request"], $path, [$v["class"], $method["method"]])
-                    ->middleware($method["middleware"])
-                    ->name($method["name"]);
-            } else {
-                continue;
-            }
+$ann_data = new Data();
+foreach (Data::$route as $k => $v) {
+    $plugin = isset($v["author"]) ? "/plugin/" . $v['author'] : "";
+    $app = isset($v["app"]) ? "/" . $v['app'] : "";
+    
+    foreach ($v['methods'] as $method) {
+        $path = $plugin . $app . "/" . $ann_data->bc2us($v["name"]) . "/" . $ann_data->bc2us($method["name"]);
+        Route::add(
+            $method["request"],
+            $path,
+            [$v["class"], $method["name"]]
+        )->middleware($method["middleware"])
+            ->name($ann_data->toName($path));
+        foreach ($method["path"] as $p) {
+            Route::add(
+                $method["request"],
+                $p,
+                [$v["class"], $method["name"]]
+            )->middleware($method["middleware"])
+                ->name($ann_data->toName($path));
         }
     }
 }
-
 
 // 禁用默认路由
 Route::disableDefaultRoute();
