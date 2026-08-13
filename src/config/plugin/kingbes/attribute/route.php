@@ -17,25 +17,44 @@ use Webman\Route;
 use Kingbes\Attribute\Data;
 
 $ann_data = new Data();
-foreach (Data::$route as $k => $v) {
+
+// 注册单条路由
+$register = function (string $class, array $method, string $path) use ($ann_data) {
+    $route = Route::add(
+        $method["request"],
+        $path,
+        [$class, $method["name"]]
+    )->middleware($method["middleware"]);
+    // 自定义路由名优先，否则用默认生成的路径名
+    $name = $method["route_name"] ?? $ann_data->toName($path);
+    if ($name !== '') {
+        $route->name($name);
+    }
+};
+
+foreach (Data::$route as $v) {
     $plugin = isset($v["author"]) ? "/plugin/" . $v['author'] : "";
     $app = isset($v["app"]) ? "/" . $v['app'] : "";
-    
+    $controllerPath = $plugin . $app . "/" . $ann_data->bc2us($v["name"]);
+
     foreach ($v['methods'] as $method) {
-        $path = $plugin . $app . "/" . $ann_data->bc2us($v["name"]) . "/" . $ann_data->bc2us($method["name"]);
-        Route::add(
-            $method["request"],
-            $path,
-            [$v["class"], $method["name"]]
-        )->middleware($method["middleware"])
-            ->name($ann_data->toName($path));
+        $methodName = $ann_data->bc2us($method["name"]);
+        $fullPath = $controllerPath . "/" . $methodName;
+
+        // 完整路由：/{控制路径}/{方法名下划线}
+        $register($v["class"], $method, $fullPath);
+
+        // index 方法优化：兼容去掉末尾 /index 的路径
+        // 例：/about/index -> /about，/user/about/index -> /user/about
+        // 根控制器 IndexController::index（/index/index）兼容 "/"
+        if ($methodName === 'index') {
+            $alias = $controllerPath === '/index' ? '/' : $controllerPath;
+            $register($v["class"], $method, $alias);
+        }
+
+        // 注解自定义 path
         foreach ($method["path"] as $p) {
-            Route::add(
-                $method["request"],
-                $p,
-                [$v["class"], $method["name"]]
-            )->middleware($method["middleware"])
-                ->name($ann_data->toName($path));
+            $register($v["class"], $method, $p);
         }
     }
 }

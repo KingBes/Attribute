@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Kingbes\Attribute;
 
 use Kingbes\Attribute\Annotation;
-use think\helper\Arr;
 
 class Data
 {
@@ -25,6 +24,7 @@ class Data
     public function __construct()
     {
         self::$data = [];
+        self::$route = [];
         $files = array_merge(
             $this->getControllerFile("app"),
             $this->getControllerFile("plugin")
@@ -55,7 +55,7 @@ class Data
                 continue;
             }
             // 忽略非controller目录
-            if (preg_match("/controller/", strtolower($v->getPathname())) !== 1) {
+            if (!str_contains(strtolower($v->getPathname()), 'controller')) {
                 continue;
             }
             $arr[] = str_replace([base_path(), ".php"], ["", ""], $v->getPathname());
@@ -89,6 +89,30 @@ class Data
     }
 
     /**
+     * 合并可重复注解.
+     *
+     * 同一目标上的多个注解依次合并：标量键后者覆盖前者，'path' 数组键追加合并。
+     *
+     * @param array $attributes 注解属性数组
+     * @return array
+     */
+    private static function mergeAnnotations(array $attributes): array
+    {
+        $merged = [];
+        foreach ($attributes as $attribute) {
+            $data = $attribute->newInstance()->get();
+            foreach ($data as $key => $value) {
+                if ($key === 'path' && isset($merged['path']) && is_array($merged['path'])) {
+                    $merged['path'] = array_merge($merged['path'], (array)$value);
+                } else {
+                    $merged[$key] = $value;
+                }
+            }
+        }
+        return $merged;
+    }
+
+    /**
      * 控制器注解信息
      *
      * @param \ReflectionClass $class
@@ -96,11 +120,7 @@ class Data
      */
     private function controller(\ReflectionClass $class): array
     {
-        $annotation = $class->getAttributes(Annotation::class);
-        if (isset($annotation[0])) {
-            return $annotation[0]->newInstance()->get();
-        }
-        return [];
+        return static::mergeAnnotations($class->getAttributes(Annotation::class));
     }
 
     /**
@@ -122,14 +142,16 @@ class Data
             }
             $annotation = new \ReflectionMethod($class_str, $name)
                 ->getAttributes(Annotation::class);
-            $ann = [];
-            if (isset($annotation[0])) {
-                $ann = $annotation[0]->newInstance()->get();
-            }
+            $ann = static::mergeAnnotations($annotation);
+            // 用户自定义路由名（webman ->name()，用于模板 {:url("xxx")} 反查）
+            $userRouteName = $ann['name'] ?? null;
             $ann["path"] = $ann["path"] ?? [];
             $ann["request"] = $ann["request"] ?? ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
             $ann["middleware"] = $ann["middleware"] ?? [];
             $ann["name"] = $name;
+            if ($userRouteName !== null) {
+                $ann["route_name"] = $userRouteName;
+            }
             $arr[] = $ann;
         }
         return $arr;
