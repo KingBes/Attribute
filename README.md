@@ -60,7 +60,7 @@ class IndexController
 
 ### 自定义路由名
 
-`name` 用于设置 webman 路由名（`->name()`），可在模板中通过 `{:url("路由名")}` 反查生成 URL，无需手写路径。指定后覆盖该方法的默认路由名：
+`name` 用于设置 webman 路由名（`->name()`），可在模板中通过 `{:route("路由名")}` 反查生成 URL，无需手写路径。指定后覆盖该方法的默认路由名：
 
 ```php
 #[Annotation([
@@ -68,7 +68,7 @@ class IndexController
 ])]
 public function sayHello()
 {
-    // 模板中可用 {:url("other.hello")} 生成该方法的 URL
+    // 模板中可用 {:route("other.hello")} 生成该方法的 URL
 }
 ```
 
