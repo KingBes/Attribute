@@ -110,9 +110,12 @@ Data::$data  // 按 app / plugin 层级分组的全部注解
 
 | 控制器 | 完整路径 | 别名路径 |
 |--------|----------|----------|
-| `IndexController::index` | `/index/index` | `/` |
+| `IndexController::index`（单应用根） | `/index/index` | `/` |
+| 默认 `index` 应用 `IndexController::index` | `/index/index/index` | `/` |
 | `AboutController::index` | `/about/index` | `/about` |
 | `user` 应用 `AboutController::index` | `/user/about/index` | `/user/about` |
+
+仅在 controllerPath 只由 `index` 段组成时（`/index` 或 `/index/index`），别名才映射根 `/`；其他应用（如 `/admin/index`）保留去掉末尾 `index` 的路径，不抢占根路由。如需自定义根路径归属，可在 `index` 方法上用 `path` 显式指定。
 
 ## 测试
 
