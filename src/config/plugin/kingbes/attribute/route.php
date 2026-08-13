@@ -44,14 +44,12 @@ foreach (Data::$route as $v) {
         // 完整路由：/{控制路径}/{方法名下划线}
         $register($v["class"], $method, $fullPath);
 
-        // index 方法优化：兼容去掉末尾 /index 的路径
-        // 例：/about/index -> /about，/user/about/index -> /user/about
-        // 默认 index 应用（含单应用根）的 IndexController::index 兼容根路径 "/"
+        // index 方法优化：兼容去掉末尾连续 index 段的路径
+        // 例：/admin/index/index -> /admin，/user/about/index -> /user/about
+        //     /index/index/index -> "/"，/about/index -> /about
         if ($methodName === 'index') {
-            $alias = $controllerPath;
-            // 仅当 controllerPath 只由 index 段组成（/index 或 /index/index）时才映射根 "/"，
-            // 其他应用（如 /admin/index）保留去掉末尾 index 的路径，避免抢占根路由
-            if (in_array($controllerPath, ['/index', '/index/index'], true)) {
+            $alias = preg_replace('#(?:/index)+$#', '', $fullPath);
+            if ($alias === '') {
                 $alias = '/';
             }
             $register($v["class"], $method, $alias);

@@ -106,16 +106,17 @@ Data::$data  // 按 app / plugin 层级分组的全部注解
 
 ### index 路由别名
 
-`index` 方法除完整路径外，会自动注册一个去掉末尾 `/index` 的别名路径：
+`index` 方法除完整路径外，会自动注册一个去掉末尾连续 `index` 段的别名路径：
 
 | 控制器 | 完整路径 | 别名路径 |
 |--------|----------|----------|
 | `IndexController::index`（单应用根） | `/index/index` | `/` |
 | 默认 `index` 应用 `IndexController::index` | `/index/index/index` | `/` |
+| `admin` 应用 `IndexController::index` | `/admin/index/index` | `/admin` |
 | `AboutController::index` | `/about/index` | `/about` |
 | `user` 应用 `AboutController::index` | `/user/about/index` | `/user/about` |
 
-仅在 controllerPath 只由 `index` 段组成时（`/index` 或 `/index/index`），别名才映射根 `/`；其他应用（如 `/admin/index`）保留去掉末尾 `index` 的路径，不抢占根路由。如需自定义根路径归属，可在 `index` 方法上用 `path` 显式指定。
+规则：从完整路径末尾依次去掉 `/index` 段，直到不剩或剩余非 `index` 段。如 `/admin/index/index` → `/admin`，`/index/index/index` → `/`。如需自定义别名行为，可在 `index` 方法上用 `path` 显式指定。
 
 ## 测试
 
